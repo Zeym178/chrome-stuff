@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "first-extention",
+    "icons": {
+        "16": "assets/icon1.png",
+        "32": "assets/icon1.png",
+        "48": "assets/icon1.png",
+        "128": "assets/icon1.png"
+    },
+    "version": "1.0.0",
+    "background": {
+        "service_worker": "service_worker.js",
+        "type": "module"
+    },
+    "action": {
+        "default_popup": "index.html"
+    },
+    "permissions": [
+        "scripting"
+    ],
+    "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+    ]
+}
