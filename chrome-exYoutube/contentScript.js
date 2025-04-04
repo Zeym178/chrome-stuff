@@ -9,6 +9,13 @@
         if (type === "NEW") {
             ContentVideo = videoId;
             newVideoLoaded();
+        } else if (type == "PLAY") {
+            youtubePlayer.currentTime = value;
+        } else if (type == "DELETE") {
+            ContentVideoBookmarks = ContentVideoBookmarks.filter((b) => b.time != value);
+            chrome.storage.sync.set({ [ContentVideo]: JSON.stringify(ContentVideoBookmarks) });
+
+            response(ContentVideoBookmarks);
         }
     });
 
@@ -64,6 +71,4 @@
 
         return date.toISOString().substr(11, 8);
     }
-
-    newVideoLoaded();
 })();

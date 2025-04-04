@@ -4,18 +4,52 @@ const addNewBookmark = (bookmarksElement, newBookmark) => {
     const bookmarkTitle = document.createElement("div");
     const bookmarkContent = document.createElement("div");
 
+    const controlsElement = document.createElement("div");
+    const deleteElement = document.createElement("div");
+
     bookmarkTitle.textContent = newBookmark.desc;
     bookmarkTitle.className = "bookmark-title";
+
+    controlsElement.className = "bookmark-controls";
+    deleteElement.className = "bookmark-controls";
 
     bookmarkContent.id = "bookmark-" + newBookmark.time;
     bookmarkContent.className = "bookmark";
     bookmarkContent.setAttribute("timestamp", newBookmark.time);
 
+    setBookmarkAttributes("play", onPlay, controlsElement);
+    setBookmarkAttributes("delete", onDelete, deleteElement);
+
+    bookmarkContent.appendChild(deleteElement);
     bookmarkContent.appendChild(bookmarkTitle);
+    bookmarkContent.appendChild(controlsElement);
     bookmarksElement.appendChild(bookmarkContent);
 }
 
-const viewBookmarks = async (currentVideoBookmarks) => {
+const onPlay = async e => {
+    const value = e.target.parentNode.parentNode.getAttribute("timestamp");
+    const localActiveTab = await getActiveTabURL();
+
+    chrome.tabs.sendMessage(localActiveTab.id, {
+        type: "PLAY",
+        value: value
+    });
+}
+
+const onDelete = async e => {
+    const value = e.target.parentNode.parentNode.getAttribute("timestamp");
+    const localActiveTab = await getActiveTabURL();
+    const bookmarkElement = document.getElementById("bookmark-" + value);
+
+    bookmarkElement.parentNode.removeChild(bookmarkElement);
+
+    chrome.tabs.sendMessage(localActiveTab.id, {
+        type: "DELETE",
+        value: value
+    }, viewBookmarks);
+}
+
+const viewBookmarks = async (currentVideoBookmarks = []) => {
     const bookmarksElement = document.getElementById("bookmarks");
     bookmarksElement.innerHTML = "";
 
@@ -27,6 +61,14 @@ const viewBookmarks = async (currentVideoBookmarks) => {
     } else {
         bookmarksElement.innerHTML = "<i> There's no bookmarks to show ! </i>";
     }
+}
+
+const setBookmarkAttributes = (src, eventListener, controlParentElement) => {
+    const controlElement = document.createElement("img");
+    controlElement.src = "assets/" + src + ".png";
+    controlElement.title = src;
+    controlElement.addEventListener("click", eventListener);
+    controlParentElement.appendChild(controlElement);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
